@@ -435,18 +435,18 @@ a face on."
       (tabulated-list-put-tag
        (string tablist-marker-char))
       (put-text-property
-       (point-at-bol)
-       (1+ (point-at-bol))
+       (line-beginning-position)
+       (1+ (line-beginning-position))
        'face tablist-marker-face)
       (let ((columns (tablist-column-offsets)))
         (dolist (c (tablist-major-columns))
           (when (and (>= c 0)
                      (< c (length columns)))
-            (let ((beg (+ (point-at-bol)
+            (let ((beg (+ (line-beginning-position)
                           (nth c columns)))
                   (end (if (= c (1- (length columns)))
-                           (point-at-eol)
-                         (+ (point-at-bol)
+                           (line-end-position)
+                         (+ (line-beginning-position)
                             (nth (1+ c) columns)))))
               (cond
                ((and tablist-marked-face
@@ -839,7 +839,7 @@ STATE is a return value of `tablist-get-mark-state'."
       (forward-char))
     ;; before any columns
     (when (< current 0)
-      (goto-char (+ (point-at-bol) (if (> n 0)
+      (goto-char (+ (line-beginning-position) (if (> n 0)
                                        (car columns)
                                      (car (last columns)))))
       (setq n (* (cl-signum n) (1- (abs n)))))
@@ -1009,11 +1009,11 @@ Optional REVERT-P means, revert the display afterwards."
   (unless n (setq n (tablist-current-column)))
   (tablist-assert-column-editable n)
   (let* ((offsets (append (tablist-column-offsets)
-                          (list (- (point-at-eol)
-                                   (point-at-bol)))))
-         (beg (+ (point-at-bol)
+                          (list (- (line-end-position)
+                                   (line-beginning-position)))))
+         (beg (+ (line-beginning-position)
                  (nth n offsets)))
-         (end (+ (point-at-bol)
+         (end (+ (line-beginning-position)
                  (nth (1+ n) offsets)))
          (entry (tabulated-list-get-entry beg))
          (inhibit-read-only t)
@@ -1025,9 +1025,9 @@ Optional REVERT-P means, revert the display afterwards."
     (goto-char beg)
     (delete-region beg end)
     (add-text-properties
-     (point-at-bol) (point-at-eol)
+     (line-beginning-position) (line-end-position)
      '(read-only t field t))
-    (unless (= beg (point-at-bol))
+    (unless (= beg (line-beginning-position))
       (put-text-property (1- beg) beg 'rear-nonsticky t))
     (save-excursion
       ;; Keep one read-only space at the end for keeping text
@@ -1037,7 +1037,7 @@ Optional REVERT-P means, revert the display afterwards."
         (concat
          (tablist-nth-entry n entry)
          (propertize " "
-                     'display `(space :align-to ,(- end (point-at-bol)))))
+                     'display `(space :align-to ,(- end (line-beginning-position)))))
         'field nil
         'front-sticky '(tablist-edit)
         'rear-nonsticky '(read-only field)
@@ -1084,7 +1084,7 @@ Optional REVERT-P means, revert the display afterwards."
       (tablist-edit-column-minor-mode -1)
       (remove-overlays beg end 'tablist-edit t)
       (put-text-property beg end 'tablist-edit nil)
-      (delete-region (point-at-bol) (1+ (point-at-eol)))
+      (delete-region (line-beginning-position) (1+ (line-end-position)))
       (save-excursion
         (tabulated-list-print-entry id entry))
       (forward-char (nth column (tablist-column-offsets))))))
@@ -1862,8 +1862,8 @@ visibility."
     (beginning-of-line)
     (let ((inhibit-read-only t))
       (add-text-properties
-       (point-at-bol)
-       (1+ (point-at-eol))
+       (line-beginning-position)
+       (1+ (line-end-position))
        `(invisible ,flag)))))
 
 (defun tablist-filter-hide-entry (&optional pos)
