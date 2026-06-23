@@ -313,13 +313,13 @@ as argument for the function `completion-in-region'.")
                                  mode-line-misc-info :key #'car-safe)))
     (cond
      ((not disable)
-      (make-local-variable 'mode-line-misc-info)
-      (push '(tablist-current-filter
-              (:eval (format " [%s]"
-                             (if tablist-filter-suspended
-                                 "suspended"
-                               "filtered"))))
-            mode-line-misc-info)
+      (set (make-local-variable 'mode-line-misc-info)
+           (cons '(tablist-current-filter
+                   (:eval (format " [%s]"
+                                  (if tablist-filter-suspended
+                                      "suspended"
+                                    "filtered"))))
+                 cleaned-misc))
       (add-hook 'post-command-hook
                 'tablist-selection-changed-handler nil t)
       (add-hook 'tablist-selection-changed-functions
