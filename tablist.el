@@ -6,7 +6,7 @@
 ;; Keywords: extensions, lisp
 ;; Package: tablist
 ;; Version: 1.2
-;; Package-Requires: ((emacs "24.3"))
+;; Package-Requires: ((emacs "25.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -1516,7 +1516,8 @@ FILTER defaults to `tablist-current-filter'."
        (tablist-filter-negate filter))))
   (force-mode-line-update))
 
-(defadvice tabulated-list-print (after tabulated-list activate)
+(define-advice tabulated-list-print
+    (:after (&rest _) tablist-reapply-filter)
   "Reapply the filter."
   (when (or tablist-minor-mode
             (derived-mode-p 'tablist-mode))
